@@ -48,6 +48,21 @@ Const $PSTATUS_INSTALLFAILED = 7
 ;;;       Start       ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+$bAutoClose = false
+
+; Check for command-line parameters
+If $CmdLine[0] > 0 Then
+    For $i = 1 to $CmdLine[0]
+        Select
+            Case StringLower($CmdLine[$i]) = "/?"
+                MsgBox(0, $sAppTitle, "Usage: " & @ScriptName & " [/autoclose]")
+                Exit
+            Case StringLower($CmdLine[$i]) = "/autoclose"
+                $bAutoClose = true
+        EndSelect
+    Next
+EndIf
+
 ; Main window
 $hGui = GUICreate($sAppTitle, 400, 600, 50, 50)
 GUISetOnEvent($GUI_EVENT_CLOSE, "OnExit")
@@ -198,11 +213,19 @@ While NextInstall() > -1
     UpdateStatus()
 Wend
 
-;; Done, enable the OK button and then do nothing
-GUICtrlSetState($hOK, $GUI_ENABLE)
-While 1
-    Sleep(100)
-Wend
+;; Done
+
+; Check the autoclose status
+If $bAutoClose Then
+    ; Stop the script
+    Exit
+Else
+    ; Enable the OK button and then do nothing
+    GUICtrlSetState($hOK, $GUI_ENABLE)
+    While 1
+        Sleep(100)
+    Wend
+EndIf
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
